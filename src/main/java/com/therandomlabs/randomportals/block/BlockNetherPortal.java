@@ -27,6 +27,8 @@ import com.therandomlabs.randomportals.client.particle.ParticleRPOPortal;
 import com.therandomlabs.randomportals.config.RPOConfig;
 import com.therandomlabs.randomportals.frame.NetherPortalFrames;
 import com.therandomlabs.randomportals.handler.NetherPortalTeleportHandler;
+import com.therandomlabs.randomportals.sound.RPOSound;
+import com.therandomlabs.randomportals.sound.RPOSound.Sounds;
 import com.therandomlabs.randomportals.world.storage.RPOSavedData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBeacon;
@@ -46,7 +48,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
@@ -54,7 +55,6 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -182,6 +182,10 @@ public class BlockNetherPortal extends BlockPortal {
 
 	@Override
 	public void updateTick(World world, BlockPos pos, IBlockState state, Random random) {
+
+		//RPOSound.playSound(RPOSound.Sounds.AMBIENT
+		RPOSound.playSound(RPOSound.Sounds.AMBIENT, null, null, world, pos);
+
 		if (!world.getGameRules().getBoolean("doMobSpawning")) {
 			return;
 		}
@@ -426,6 +430,15 @@ public class BlockNetherPortal extends BlockPortal {
 			newColor = null;
 		}
 
+		//Don't call findFrame because this method is called every tick an entity is in a portal
+		final NetherPortal portal = RPOSavedData.get(world).getNetherPortalByInner(pos);
+		final PortalType portalType =
+				portal == null ? PortalTypes.getDefault(world) : portal.getType();		
+
+		if (entity instanceof EntityPlayer) {
+			RPOSound.playSound(Sounds.TRIGGER, portalType, (EntityPlayer) entity, world, pos);
+		}
+
 		if (world.isRemote) {
 			if (newColor == null) {
 				//On the client, the Nether portal logic is not changed
@@ -439,10 +452,7 @@ public class BlockNetherPortal extends BlockPortal {
 			return;
 		}
 
-		//Don't call findFrame because this method is called every tick an entity is in a portal
-		final NetherPortal portal = RPOSavedData.get(world).getNetherPortalByInner(pos);
-		final PortalType portalType =
-				portal == null ? PortalTypes.getDefault(world) : portal.getType();
+
 
 		if (newColor != null) {
 			if (portalType.color.dyeBehavior == ColorData.DyeBehavior.DISABLE) {
@@ -537,18 +547,11 @@ public class BlockNetherPortal extends BlockPortal {
 		final int y = pos.getY();
 		final int z = pos.getZ();
 
-		if (random.nextInt(100) == 0) {
-			world.playSound(
-					x + 0.5,
-					y + 0.5,
-					z + 0.5,
-					SoundEvents.BLOCK_PORTAL_AMBIENT,
-					SoundCategory.BLOCKS,
-					0.5F,
-					random.nextFloat() * 0.4F + 0.8F,
-					false
-			);
-		}
+		// ambient sounds have been moved to updateTick()
+		// this was needed so that portal type data would
+		// available to differentiate ambient sounds by type.
+		// (portal type data is only available on the server,
+		// and display ticks are client-side only.)
 
 		for (int i = 0; i < 4; i++) {
 			final double particleX;

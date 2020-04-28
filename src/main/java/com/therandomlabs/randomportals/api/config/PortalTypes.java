@@ -18,6 +18,7 @@ import com.therandomlabs.randomportals.api.frame.Frame;
 import com.therandomlabs.randomportals.api.frame.FrameType;
 import com.therandomlabs.randomportals.api.util.FrameStatePredicate;
 import com.therandomlabs.randomportals.config.RPOConfig;
+import com.therandomlabs.randomportals.sound.RPOSound;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -26,6 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class PortalTypes {
 	public static final String VANILLA_NETHER_PORTAL_ID = "vanilla_nether_portal";
+	public static final String PORTAL_TYPES_DIRECTORY = "portal_types";
+	public static final String GROUP_DATA_FILENAME = "group_data.json";
+	public static final String GROUP_SOUND_FILENAME = RPOSound.SOUND_CONFIG_FILENAME;
 
 	public static final PortalTypeGroup VANILLA_NETHER_PORTAL =
 			new PortalTypeGroup(VANILLA_NETHER_PORTAL_ID);
@@ -165,7 +169,7 @@ public final class PortalTypes {
 	}
 
 	public static void reload() throws IOException {
-		final Path directory = RPOConfig.getDirectory("portal_types");
+		final Path directory = RPOConfig.getDirectory(PORTAL_TYPES_DIRECTORY);
 		List<Path> paths;
 
 		try (final Stream<Path> pathStream = Files.list(directory)) {
@@ -176,12 +180,14 @@ public final class PortalTypes {
 
 		for (Path groupPath : paths) {
 			if (!Files.isDirectory(groupPath)) {
+				RandomPortals.LOGGER.warn("reload(1): Deleting folder: " + groupPath.toString());
 				Files.delete(groupPath);
 				continue;
 			}
 
 			final String id = groupPath.getFileName().toString();
-			final Path groupData = groupPath.resolve("group_data.json");
+			final Path groupData = groupPath.resolve(GROUP_DATA_FILENAME);
+			final Path groupSound = groupPath.resolve(GROUP_SOUND_FILENAME);
 
 			if (!Files.exists(groupData) || !Files.isRegularFile(groupData)) {
 				RandomPortals.LOGGER.error("Invalid portal type group: " + id);
@@ -206,7 +212,7 @@ public final class PortalTypes {
 			}
 
 			for (Path typePath : typePaths) {
-				if (groupData.equals(typePath)) {
+				if (groupData.equals(typePath) || groupSound.equals(typePath)) {
 					continue;
 				}
 
@@ -317,7 +323,7 @@ public final class PortalTypes {
 			Files.createDirectories(groupPath);
 		}
 
-		RPOConfig.writeJson(groupPath.resolve("group_data.json"), group);
+		RPOConfig.writeJson(groupPath.resolve(GROUP_DATA_FILENAME), group);
 
 		group.types.forEach((dimensionID, type) -> RPOConfig.writeJson(
 				groupPath.resolve(dimensionID + ".json"), type

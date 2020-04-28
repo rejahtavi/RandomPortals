@@ -135,10 +135,9 @@ public final class RPOConfig {
 		})
 		public static boolean replaceUserPlacedPortalsOnActivation;
 
+		@Deprecated
 		@Config.Property({
-				"Whether portal ambient sounds should be server-sided instead of client-sided " +
-						"as in vanilla.",
-				"This must be enabled for custom portal ambient sounds to work."
+				"Deprecated -- all sounds are server side now."
 		})
 		public static boolean serverSidedAmbientSounds = true;
 	}

@@ -15,12 +15,15 @@ import com.therandomlabs.randomportals.handler.FrameHeadVillagerHandler;
 import com.therandomlabs.randomportals.handler.NetherPortalActivationHandler;
 import com.therandomlabs.randomportals.handler.NetherPortalFrameBreakHandler;
 import com.therandomlabs.randomportals.handler.NetherPortalTeleportHandler;
+import com.therandomlabs.randomportals.sound.RPOSound;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 
 public class CommonProxy {
 	public void preInit() {
+		// register RPOSound during preInit so we can grab Register<SoundEvent> events
+		MinecraftForge.EVENT_BUS.register(RPOSound.class);
 		ConfigManager.register(RPOConfig.class);
 	}
 

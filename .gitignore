@@ -21,3 +21,6 @@ build
 eclipse
 libs
 run
+gradlew
+rebuild.sh
+gradlew

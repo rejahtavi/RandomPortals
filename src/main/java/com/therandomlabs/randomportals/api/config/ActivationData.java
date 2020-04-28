@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import com.therandomlabs.randomportals.util.RegistryNameAndMeta;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
 
 public final class ActivationData {
 	public enum ConsumeBehavior {
@@ -19,13 +17,12 @@ public final class ActivationData {
 	public List<PortalActivator> activators = new ArrayList<>();
 
 	public ConsumeBehavior activatorConsumeBehavior = ConsumeBehavior.CONSUME;
+
 	public boolean spawnFireBeforeActivating = true;
-
-	public String[] activationSounds = {
-			"minecraft:creativetab.flintandsteel.use"
-	};
-
-	private transient SoundEvent[] activationSoundEvents;
+	
+	public boolean lightningStrikeOnActivate = false;
+	public boolean lightningStrikeRequiresSky = false;
+	public boolean lightningStrikeSpawnsFire = true;
 
 	@SuppressWarnings("Duplicates")
 	public void ensureCorrect() {
@@ -44,36 +41,6 @@ public final class ActivationData {
 
 			checkedItems.add(registryNameAndMeta);
 		}
-
-		getActivationSoundEvents();
-	}
-
-	public SoundEvent[] getActivationSoundEvents() {
-		if (activationSoundEvents != null) {
-			return activationSoundEvents;
-		}
-
-		final List<String> sounds = new ArrayList<>(activationSounds.length);
-		final List<SoundEvent> soundEvents = new ArrayList<>(activationSounds.length);
-
-		for (String activationSound : activationSounds) {
-			final SoundEvent soundEvent =
-					SoundEvent.REGISTRY.getObject(new ResourceLocation(activationSound));
-
-			if (soundEvent != null) {
-				final String registryName = soundEvent.getRegistryName().toString();
-
-				if (!sounds.contains(registryName)) {
-					sounds.add(registryName);
-					soundEvents.add(soundEvent);
-				}
-			}
-		}
-
-		activationSounds = sounds.toArray(new String[0]);
-		activationSoundEvents = soundEvents.toArray(new SoundEvent[0]);
-
-		return activationSoundEvents;
 	}
 
 	public boolean test(ItemStack stack) {

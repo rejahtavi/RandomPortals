@@ -1,0 +1,51 @@
+{
+	"activate": {
+		"category": "blocks",
+		"subtitle": "blocks.portal.activate",
+		"sounds": [
+			{
+				"name": "minecraft:fire/ignite",
+				"stream": true
+			}
+		]
+	},
+	"ambient": {
+		"category": "blocks",
+		"subtitle": "blocks.portal.ambient",
+		"sounds": [
+			{
+				"name": "minecraft:portal/portal",
+				"stream": false
+			}
+		]
+	},
+	"trigger": {
+		"category": "blocks",
+		"subtitle": "blocks.portal.trigger",
+		"sounds": [
+			{
+				"name": "minecraft:portal/trigger",
+				"stream": true
+			}
+		]
+	},
+	"travel": {
+		"category": "blocks",
+		"subtitle": "blocks.portal.travel",
+		"sounds": [
+			{
+				"name": "minecraft:portal/travel",
+				"stream": true
+			}
+		]
+	},
+	"destroy": {
+		"category": "blocks",
+		"sounds": [
+			{
+				"name": "randomportals:destroy",
+				"stream": false
+			}
+		]
+	}
+}

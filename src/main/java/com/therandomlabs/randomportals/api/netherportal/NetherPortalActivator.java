@@ -18,18 +18,19 @@ import com.therandomlabs.randomportals.block.RPOBlocks;
 import com.therandomlabs.randomportals.config.RPOConfig;
 import com.therandomlabs.randomportals.frame.NetherPortalFrames;
 import com.therandomlabs.randomportals.handler.NetherPortalActivationHandler;
+import com.therandomlabs.randomportals.sound.RPOSound;
+import com.therandomlabs.randomportals.sound.RPOSound.Sounds;
 import com.therandomlabs.randomportals.world.storage.RPOSavedData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPortal;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -275,18 +276,16 @@ public class NetherPortalActivator {
 		}
 
 		final PortalType portalType = portal.getType();
-		final SoundEvent[] sounds = portalType.activation.getActivationSoundEvents();
 
-		if (sounds.length != 0) {
-			world.playSound(
-					null,
-					pos,
-					sounds[world.rand.nextInt(sounds.length)],
-					SoundCategory.BLOCKS,
-					1.0F,
-					world.rand.nextFloat() * 0.4F + 0.8F
-			);
-		}
+		RPOSound.playSound(Sounds.ACTIVATE, portalType, player, world, pos);
+		
+		if(portalType.activation.lightningStrikeOnActivate) {
+			BlockPos strikeAt = RPOSound.getCenterBlock(frame.getCornerBlockPositions(), true);
+			if ((! portalType.activation.lightningStrikeRequiresSky) || (world.canSeeSky(strikeAt))) {
+				world.addWeatherEffect(new EntityLightningBolt(world, strikeAt.getX(), strikeAt.getY(), 
+						strikeAt.getZ(), !portalType.activation.lightningStrikeSpawnsFire));
+			}
+		}		
 
 		if (player != null && RPOConfig.Misc.advancements &&
 				portalType.group.toString().equals(PortalTypes.VANILLA_NETHER_PORTAL_ID)) {
